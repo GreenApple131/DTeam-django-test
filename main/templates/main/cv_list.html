@@ -1,0 +1,129 @@
+{% extends 'main/base.html' %}
+
+{% block title %}CV List - CV Project{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-users me-2"></i>CV Portfolio
+        </h1>
+        
+        {% if cvs %}
+            <div class="row">
+                {% for cv in cvs %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a href="{% url 'main:cv_detail' cv.pk %}" class="text-decoration-none">
+                                        {{ cv.full_name }}
+                                    </a>
+                                </h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ cv.title }}</h6>
+                                
+                                <p class="card-text">
+                                    {{ cv.bio|truncatewords:20 }}
+                                </p>
+                                
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-envelope me-1"></i>{{ cv.email }}
+                                    </small>
+                                    {% if cv.location %}
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ cv.location }}
+                                        </small>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if cv.skills.exists %}
+                                    <div class="mb-3">
+                                        <strong>Skills:</strong>
+                                        <div class="mt-1">
+                                            {% for skill in cv.skills.all|slice:":5" %}
+                                                <span class="badge bg-secondary me-1">{{ skill.name }}</span>
+                                            {% endfor %}
+                                            {% if cv.skills.count > 5 %}
+                                                <span class="badge bg-light text-dark">+{{ cv.skills.count|add:"-5" }} more</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        Updated: {{ cv.updated_at|date:"M d, Y" }}
+                                    </small>
+                                    <div>
+                                        {% if cv.portfolio_url %}
+                                            <a href="{{ cv.portfolio_url }}" target="_blank" class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-globe"></i>
+                                            </a>
+                                        {% endif %}
+                                        {% if cv.linkedin_url %}
+                                            <a href="{{ cv.linkedin_url }}" target="_blank" class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fab fa-linkedin"></i>
+                                            </a>
+                                        {% endif %}
+                                        {% if cv.github_url %}
+                                            <a href="{{ cv.github_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fab fa-github"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer">
+                                <a href="{% url 'main:cv_detail' cv.pk %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Full CV
+                                </a>
+                                <small class="text-muted float-end">
+                                    {{ cv.project_set.count }} project{{ cv.project_set.count|pluralize }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            {% if is_paginated %}
+                <nav aria-label="CV pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                <h4>No CVs found</h4>
+                <p>There are currently no CVs in the system.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

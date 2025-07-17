@@ -1,0 +1,231 @@
+{% extends 'main/base.html' %}
+{% load cv_extras %}
+
+{% block title %}{{ cv.full_name }} - CV Detail{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Back to list button -->
+        <div class="mb-3">
+            <a href="{% url 'main:cv_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to CV List
+            </a>
+        </div>
+
+        <!-- CV Header -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h1 class="card-title mb-2">{{ cv.full_name }}</h1>
+                        <h4 class="text-muted mb-3">{{ cv.title }}</h4>
+                        <p class="lead">{{ cv.bio }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="contact-info">
+                            <h5>Contact Information</h5>
+                            <p class="mb-1">
+                                <i class="fas fa-envelope me-2"></i>
+                                <a href="mailto:{{ cv.email }}">{{ cv.email }}</a>
+                            </p>
+                            {% if cv.phone %}
+                                <p class="mb-1">
+                                    <i class="fas fa-phone me-2"></i>
+                                    <a href="tel:{{ cv.phone }}">{{ cv.phone }}</a>
+                                </p>
+                            {% endif %}
+                            {% if cv.location %}
+                                <p class="mb-1">
+                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                    {{ cv.location }}
+                                </p>
+                            {% endif %}
+                            
+                            <!-- Social Links -->
+                            {% if cv.portfolio_url or cv.linkedin_url or cv.github_url %}
+                                <div class="mt-3">
+                                    <h6>Links</h6>
+                                    {% if cv.portfolio_url %}
+                                        <a href="{{ cv.portfolio_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2 mb-1">
+                                            <i class="fas fa-globe me-1"></i>Portfolio
+                                        </a>
+                                    {% endif %}
+                                    {% if cv.linkedin_url %}
+                                        <a href="{{ cv.linkedin_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2 mb-1">
+                                            <i class="fab fa-linkedin me-1"></i>LinkedIn
+                                        </a>
+                                    {% endif %}
+                                    {% if cv.github_url %}
+                                        <a href="{{ cv.github_url }}" target="_blank" class="btn btn-outline-primary btn-sm me-2 mb-1">
+                                            <i class="fab fa-github me-1"></i>GitHub
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        {% if cv.skills.exists %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-tools me-2"></i>Skills
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for skill in cv.skills.all %}
+                            <div class="col-md-3 col-sm-4 col-6 mb-2">
+                                <span class="badge bg-primary p-2 w-100">{{ skill.name }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Experience Section -->
+        {% if cv.experience %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-briefcase me-2"></i>Work Experience
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="experience-content">
+                        {{ cv.experience|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Education Section -->
+        {% if cv.education %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-graduation-cap me-2"></i>Education
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="education-content">
+                        {{ cv.education|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Projects Section -->
+        {% if cv.project_set.exists %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-project-diagram me-2"></i>Projects
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for project in cv.project_set.all %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100 border-light">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            {% if project.url %}
+                                                <a href="{{ project.url }}" target="_blank" class="text-decoration-none">
+                                                    {{ project.title }}
+                                                    <i class="fas fa-external-link-alt ms-1 small"></i>
+                                                </a>
+                                            {% else %}
+                                                {{ project.title }}
+                                            {% endif %}
+                                        </h5>
+                                        
+                                        {% if project.start_date or project.end_date %}
+                                            <h6 class="card-subtitle mb-2 text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                {% if project.start_date %}{{ project.start_date|date:"M Y" }}{% endif %}
+                                                {% if project.end_date %}
+                                                    - {{ project.end_date|date:"M Y" }}
+                                                {% elif project.start_date %}
+                                                    - Present
+                                                {% endif %}
+                                            </h6>
+                                        {% endif %}
+                                        
+                                        <p class="card-text">{{ project.description }}</p>
+                                        
+                                        {% if project.technologies %}
+                                            <div class="mb-2">
+                                                <strong>Technologies:</strong>
+                                                <div class="mt-1">
+                                                    {% for tech in project.technologies|split:", " %}
+                                                        <span class="badge bg-secondary me-1 mb-1">{{ tech|strip }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if project.url %}
+                                            <a href="{{ project.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-external-link-alt me-1"></i>View Project
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Metadata -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row text-muted">
+                    <div class="col-md-6">
+                        <small>
+                            <i class="fas fa-plus me-1"></i>
+                            Created: {{ cv.created_at|date:"F d, Y \a\t g:i A" }}
+                        </small>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <small>
+                            <i class="fas fa-edit me-1"></i>
+                            Last updated: {{ cv.updated_at|date:"F d, Y \a\t g:i A" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .contact-info p {
+        margin-bottom: 0.5rem;
+    }
+    
+    .experience-content, .education-content {
+        white-space: pre-line;
+    }
+    
+    .card-title a {
+        color: inherit;
+    }
+    
+    .card-title a:hover {
+        color: #0d6efd;
+    }
+    
+    .badge {
+        font-size: 0.75em;
+    }
+</style>
+{% endblock %}
