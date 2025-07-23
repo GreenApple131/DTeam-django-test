@@ -6,6 +6,8 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
 from main.models import CV
 
 
@@ -67,3 +69,62 @@ def cv_list(request):
 def cv_detail(request, pk):
     cv = get_object_or_404(CV, pk=pk)
     return render(request, "main/cv_detail.html", {"cv": cv})
+
+
+def settings_view(request):
+    """
+    Display Django settings page.
+    Available to all users in DEBUG mode, staff only in production.
+    """
+    if not settings.DEBUG and not request.user.is_staff:
+        from django.http import HttpResponseForbidden
+
+        return HttpResponseForbidden("Access denied. Staff privileges required.")
+
+    # Get settings from context processor
+    context = {
+        "page_title": "Django Settings",
+        "debug_mode": settings.DEBUG,
+    }
+
+    return render(request, "main/settings.html", context)
+
+
+@staff_member_required
+def detailed_settings_view(request):
+    """
+    Display detailed Django settings (staff only).
+    """
+    # Get settings that are safe to display
+    safe_settings = {}
+    excluded_settings = {
+        "SECRET_KEY",
+        "DATABASES",
+        "PASSWORD_HASHERS",
+        "AUTH_PASSWORD_VALIDATORS",
+        "EMAIL_HOST_PASSWORD",
+    }
+
+    for setting_name in dir(settings):
+        if (
+            not setting_name.startswith("_")
+            and setting_name not in excluded_settings
+            and setting_name.isupper()
+        ):
+            try:
+                setting_value = getattr(settings, setting_name)
+                # Convert complex objects to JSON-serializable format
+                if isinstance(setting_value, (dict, list, tuple)):
+                    safe_settings[setting_name] = setting_value
+                else:
+                    safe_settings[setting_name] = str(setting_value)
+            except Exception:
+                safe_settings[setting_name] = "Unable to display"
+
+    context = {
+        "page_title": "Detailed Django Settings",
+        "settings_dict": safe_settings,
+        "debug_mode": settings.DEBUG,
+    }
+
+    return render(request, "main/detailed_settings.html", context)
