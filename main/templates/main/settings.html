@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .settings-section h2 {
+            color: #007bff;
+            margin-top: 0;
+        }
+
+        .setting-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-left: 4px solid #007bff;
+        }
+
+        .setting-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .setting-value {
+            margin-top: 5px;
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .debug-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .list-item {
+            margin: 5px 0;
+            padding: 3px 8px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+        }
+
+        .nav-links {
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .nav-links a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>{{ page_title }}</h1>
+
+        <div class="nav-links">
+            <a href="{% url 'main:settings' %}">Basic Settings</a>
+            {% if user.is_staff %}
+            <a href="{% url 'main:detailed_settings' %}">Detailed Settings</a>
+            {% endif %}
+            <a href="{% url 'audit:recent_requests' %}">Request Logs</a>
+        </div>
+
+        {% if debug_mode %}
+        <div class="debug-warning">
+            <strong>⚠️ DEBUG MODE:</strong> This application is running in debug mode.
+            Additional settings information is available.
+        </div>
+        {% endif %}
+
+        <div class="settings-section">
+            <h2>Core Settings</h2>
+
+            <div class="setting-item">
+                <div class="setting-name">DEBUG</div>
+                <div class="setting-value">{{ django_settings.DEBUG }}</div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-name">LANGUAGE_CODE</div>
+                <div class="setting-value">{{ django_settings.LANGUAGE_CODE }}</div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-name">TIME_ZONE</div>
+                <div class="setting-value">{{ django_settings.TIME_ZONE }}</div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-name">USE_I18N</div>
+                <div class="setting-value">{{ django_settings.USE_I18N }}</div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-name">USE_TZ</div>
+                <div class="setting-value">{{ django_settings.USE_TZ }}</div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-name">STATIC_URL</div>
+                <div class="setting-value">{{ django_settings.STATIC_URL }}</div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>Application Settings</h2>
+
+            <div class="setting-item">
+                <div class="setting-name">ROOT_URLCONF</div>
+                <div class="setting-value">{{ django_settings.ROOT_URLCONF }}</div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-name">WSGI_APPLICATION</div>
+                <div class="setting-value">{{ django_settings.WSGI_APPLICATION }}</div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-name">DATABASE_ENGINE</div>
+                <div class="setting-value">{{ django_settings.DATABASE_ENGINE }}</div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>Installed Apps</h2>
+            {% for app in django_settings.INSTALLED_APPS %}
+            <div class="list-item">{{ app }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="settings-section">
+            <h2>Middleware</h2>
+            {% for middleware in django_settings.MIDDLEWARE %}
+            <div class="list-item">{{ middleware }}</div>
+            {% endfor %}
+        </div>
+
+        {% if django_settings.REST_FRAMEWORK %}
+        <div class="settings-section">
+            <h2>Django REST Framework</h2>
+            {% for key, value in django_settings.REST_FRAMEWORK.items %}
+            <div class="setting-item">
+                <div class="setting-name">{{ key }}</div>
+                <div class="setting-value">
+                    {{ value }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if debug_mode and all_django_settings %}
+        <div class="settings-section">
+            <h2>All Settings (Debug Mode Only)</h2>
+            <p><em>Showing additional settings available in debug mode. Sensitive settings are excluded.</em></p>
+            <details>
+                <summary style="cursor: pointer; font-weight: bold;">Click to expand all settings</summary>
+                {% for key, value in all_django_settings.items %}
+                {% if key not in django_settings.keys %}
+                <div class="setting-item">
+                    <div class="setting-name">{{ key }}</div>
+                    <div class="setting-value">{{ value|truncatechars:200 }}</div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </details>
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
