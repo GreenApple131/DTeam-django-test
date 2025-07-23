@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from .models import CV
+from main.models import CV
 
 
 class CVListView(ListView):

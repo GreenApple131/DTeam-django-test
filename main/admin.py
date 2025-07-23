@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CV, Skill, Project
+from main.models import CV, Skill, Project
 
 
 class SkillInline(admin.TabularInline):
