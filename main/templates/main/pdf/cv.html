@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ cv.full_name }} - CV</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 24pt;
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        
+        .header h2 {
+            font-size: 16pt;
+            margin: 0 0 15px 0;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 10pt;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .bio {
+            font-style: italic;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 3px solid #3498db;
+        }
+        
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .skill-item {
+            background-color: #ecf0f1;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 10pt;
+            text-align: center;
+        }
+        
+        .project {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .project:last-child {
+            border-bottom: none;
+        }
+        
+        .project-title {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .project-date {
+            font-size: 9pt;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+        
+        .project-description {
+            margin-bottom: 10px;
+        }
+        
+        .technologies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+        
+        .tech-item {
+            background-color: #3498db;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-size: 9pt;
+        }
+        
+        .project-url {
+            font-size: 9pt;
+            color: #3498db;
+            word-break: break-all;
+        }
+        
+        .experience-content,
+        .education-content {
+            white-space: pre-line;
+            line-height: 1.5;
+        }
+        
+        .links {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .links a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 10pt;
+        }
+        
+        /* Ensure proper page breaks */
+        .section {
+            break-inside: avoid;
+        }
+        
+        .project {
+            break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>{{ cv.full_name }}</h1>
+        <h2>{{ cv.title }}</h2>
+        
+        <div class="contact-info">
+            <div class="contact-item">
+                <strong>Email:</strong>&nbsp;{{ cv.email }}
+            </div>
+            {% if cv.phone %}
+                <div class="contact-item">
+                    <strong>Phone:</strong>&nbsp;{{ cv.phone }}
+                </div>
+            {% endif %}
+            {% if cv.location %}
+                <div class="contact-item">
+                    <strong>Location:</strong>&nbsp;{{ cv.location }}
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if cv.portfolio_url or cv.linkedin_url or cv.github_url %}
+            <div class="links">
+                {% if cv.portfolio_url %}
+                    <a href="{{ cv.portfolio_url }}">{{ cv.portfolio_url }}</a>
+                {% endif %}
+                {% if cv.linkedin_url %}
+                    <a href="{{ cv.linkedin_url }}">{{ cv.linkedin_url }}</a>
+                {% endif %}
+                {% if cv.github_url %}
+                    <a href="{{ cv.github_url }}">{{ cv.github_url }}</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Professional Summary -->
+    {% if cv.bio %}
+        <div class="section">
+            <div class="section-title">Professional Summary</div>
+            <div class="bio">{{ cv.bio }}</div>
+        </div>
+    {% endif %}
+
+    <!-- Skills -->
+    {% if cv.skills.exists %}
+        <div class="section">
+            <div class="section-title">Skills</div>
+            <div class="skills-grid">
+                {% for skill in cv.skills.all %}
+                    <div class="skill-item">{{ skill.name }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Experience -->
+    {% if cv.experience %}
+        <div class="section">
+            <div class="section-title">Work Experience</div>
+            <div class="experience-content">{{ cv.experience }}</div>
+        </div>
+    {% endif %}
+
+    <!-- Education -->
+    {% if cv.education %}
+        <div class="section">
+            <div class="section-title">Education</div>
+            <div class="education-content">{{ cv.education }}</div>
+        </div>
+    {% endif %}
+
+    <!-- Projects -->
+    {% if cv.project_set.exists %}
+        <div class="section">
+            <div class="section-title">Projects</div>
+            {% for project in cv.project_set.all %}
+                <div class="project">
+                    <div class="project-title">{{ project.title }}</div>
+                    
+                    {% if project.start_date or project.end_date %}
+                        <div class="project-date">
+                            {% if project.start_date %}{{ project.start_date|date:"M Y" }}{% endif %}
+                            {% if project.end_date %}
+                                - {{ project.end_date|date:"M Y" }}
+                            {% elif project.start_date %}
+                                - Present
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="project-description">{{ project.description }}</div>
+                    
+                    {% if project.technologies %}
+                        <div class="technologies">
+                            {% load cv_extras %}
+                            {% for tech in project.technologies|split:", " %}
+                                <span class="tech-item">{{ tech|strip }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    {% if project.url %}
+                        <div class="project-url">{{ project.url }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</body>
+</html>
