@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recent Requests Log</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .stats {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .method {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .method-get {
+            background-color: #28a745;
+        }
+
+        .method-post {
+            background-color: #007bff;
+        }
+
+        .method-put {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .method-patch {
+            background-color: #17a2b8;
+        }
+
+        .method-delete {
+            background-color: #dc3545;
+        }
+
+        .status-success {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .status-redirect {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .response-time {
+            text-align: right;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Recent Requests Log</h1>
+
+        <div class="stats">
+            <strong>Total Requests Logged:</strong> {{ total_requests }}
+            <br>
+            <strong>Showing:</strong> Last 10 requests
+        </div>
+
+        {% if requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Method</th>
+                    <th>Path</th>
+                    <th>Status</th>
+                    <th>User</th>
+                    <th>IP Address</th>
+                    <th>Response Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request_log in requests %}
+                <tr>
+                    <td>{{ request_log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                    <td>
+                        <span class="method method-{{ request_log.method|lower }}">
+                            {{ request_log.method }}
+                        </span>
+                    </td>
+                    <td>
+                        {{ request_log.path }}
+                        {% if request_log.query_string %}
+                        <small style="color: #666;">?{{ request_log.query_string|truncatechars:50 }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if request_log.status_code %}
+                        <span
+                            class="{% if request_log.status_code < 300 %}status-success{% elif request_log.status_code < 400 %}status-redirect{% else %}status-error{% endif %}">
+                            {{ request_log.status_code }}
+                        </span>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if request_log.user %}
+                        {{ request_log.user.username }}
+                        {% else %}
+                        <em>Anonymous</em>
+                        {% endif %}
+                    </td>
+                    <td>{{ request_log.remote_ip|default:"-" }}</td>
+                    <td class="response-time">
+                        {% if request_log.response_time_ms %}
+                        {{ request_log.response_time_ms|floatformat:2 }}ms
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-data">
+            No requests have been logged yet.
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
