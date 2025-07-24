@@ -1,14 +1,18 @@
 import os
 import tempfile
+import json
 
 from weasyprint import HTML
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from main.models import CV
+from .tasks import send_cv_pdf_email
 
 
 class CVListView(ListView):
@@ -128,3 +132,31 @@ def detailed_settings_view(request):
     }
 
     return render(request, "main/detailed_settings.html", context)
+
+
+@require_POST
+def send_cv_email(request, cv_id):
+    """
+    Trigger Celery task to send CV PDF via email
+    """
+    try:
+        data = json.loads(request.body)
+        recipient_email = data.get("email")
+
+        if not recipient_email:
+            return JsonResponse({"error": "Email is required"}, status=400)
+
+        # Get CV to validate it exists
+        cv = CV.objects.get(id=cv_id)
+
+        # Trigger Celery task
+        task = send_cv_pdf_email.delay(cv_id, recipient_email)
+
+        return JsonResponse({"message": "Email is being sent", "task_id": task.id})
+
+    except CV.DoesNotExist:
+        return JsonResponse({"error": "CV not found"}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

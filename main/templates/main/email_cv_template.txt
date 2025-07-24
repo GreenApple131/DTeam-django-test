@@ -1,0 +1,11 @@
+Hello,
+
+Please find attached the CV for {{ cv.full_name }}.
+
+Professional Title: {{ cv.title }}
+Email: {{ cv.email }}
+
+This CV was generated and sent automatically from our CV management system.
+
+Best regards,
+CV Project Team

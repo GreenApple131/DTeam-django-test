@@ -186,3 +186,89 @@ CVProject/
 ## 📄 License
 
 This project is for educational purposes as part of the DTEAM Django Developer Practical Test.
+
+# CV Project
+
+A Django-based CV management system with REST API functionality, built with Docker and Celery.
+
+## Features
+
+- CV management with CRUD operations
+- REST API endpoints
+- Request logging middleware
+- Template context processors
+- Celery for asynchronous tasks (PDF generation and email sending)
+- PostgreSQL database
+- Redis for Celery broker
+- Docker containerization
+
+## Setup and Installation
+
+1. Clone the repository
+2. Copy `.env.example` to `.env` and configure your environment variables
+3. Build and start the containers:
+   ```bash
+   docker-compose up --build
+   ```
+
+## Loading Initial Data
+
+The project includes fixture files with sample data to help you get started quickly.
+
+### Using Fixtures
+
+To load the initial data (sample CVs and skills), run the following command:
+
+```bash
+docker-compose exec web python manage.py loaddata fixtures/initial_data.json
+```
+
+This will create:
+
+- Sample skills (Python, Django, JavaScript, React, PostgreSQL, Docker, Node.js, Vue.js)
+- 3 sample CV records with different professional profiles
+- Relationships between CVs and their associated skills
+
+### Manual Data Management
+
+You can also manage data manually through:
+
+- Django Admin interface: `http://localhost:8000/admin/`
+- API endpoints: `http://localhost:8000/api/cvs/`
+- Django shell: `docker-compose exec web python manage.py shell`
+
+### Creating Custom Fixtures
+
+To create your own fixtures from existing data:
+
+```bash
+# Export all CV data
+docker-compose exec web python manage.py dumpdata main.CV --indent 2 > fixtures/cvs.json
+```
+
+## API Endpoints
+
+- `GET/POST /api/cvs/` - List all CVs / Create new CV
+- `GET/PUT/PATCH/DELETE /api/cvs/{id}/` - Retrieve/Update/Delete specific CV
+- `GET/cv/{id}/` **CV Detail** View with sending email functionality
+
+## Additional Features
+
+- **Request Logs**: View at `/logs/`
+- **Settings Page**: View at `/settings/`
+- **Send CV PDF**: Use the email form on CV detail pages
+
+## Development
+
+Access the services:
+
+- Web application: `http://localhost:8000`
+- PostgreSQL: `localhost:5433`
+- Redis: `localhost:6380`
+
+View logs:
+
+```bash
+docker-compose logs web
+docker-compose logs celery
+```

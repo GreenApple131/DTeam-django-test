@@ -1,0 +1,118 @@
+[
+    {
+        "model": "main.skill",
+        "pk": 1,
+        "fields": {
+            "name": "Python"
+        }
+    },
+    {
+        "model": "main.skill",
+        "pk": 2,
+        "fields": {
+            "name": "Django"
+        }
+    },
+    {
+        "model": "main.skill",
+        "pk": 3,
+        "fields": {
+            "name": "JavaScript"
+        }
+    },
+    {
+        "model": "main.skill",
+        "pk": 4,
+        "fields": {
+            "name": "React"
+        }
+    },
+    {
+        "model": "main.skill",
+        "pk": 5,
+        "fields": {
+            "name": "PostgreSQL"
+        }
+    },
+    {
+        "model": "main.skill",
+        "pk": 6,
+        "fields": {
+            "name": "Docker"
+        }
+    },
+    {
+        "model": "main.skill",
+        "pk": 7,
+        "fields": {
+            "name": "Node.js"
+        }
+    },
+    {
+        "model": "main.skill",
+        "pk": 8,
+        "fields": {
+            "name": "Vue.js"
+        }
+    },
+    {
+        "model": "main.cv",
+        "pk": 1,
+        "fields": {
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "john.doe@example.com",
+            "phone": "+1234567890",
+            "location": "New York, NY",
+            "title": "Software Developer",
+            "bio": "Experienced software developer with passion for clean code",
+            "experience": "5+ years of software development experience at various companies",
+            "education": "Bachelor's degree in Computer Science",
+            "portfolio_url": "https://johndoe.dev",
+            "linkedin_url": "https://linkedin.com/in/johndoe",
+            "github_url": "https://github.com/johndoe",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z"
+        }
+    },
+    {
+        "model": "main.cv",
+        "pk": 2,
+        "fields": {
+            "first_name": "Alice",
+            "last_name": "Johnson",
+            "email": "alice.johnson@example.com",
+            "phone": "+1555987654",
+            "location": "San Francisco, CA",
+            "title": "Frontend Developer",
+            "bio": "Creative frontend developer with expertise in React and modern JavaScript frameworks. Passionate about user experience and responsive design.",
+            "experience": "Frontend Developer at TechStartup (2022-Present)\n• Built responsive web applications using React\n• Collaborated with design team on UI/UX improvements\n\nJunior Developer at WebCorp (2020-2022)\n• Developed interactive components\n• Optimized website performance",
+            "education": "Bachelor's degree in Computer Science\nUniversity of California, 2020",
+            "portfolio_url": "https://alicejohnson.dev",
+            "linkedin_url": "https://linkedin.com/in/alicejohnson",
+            "github_url": "https://github.com/alicejohnson",
+            "created_at": "2024-01-16T14:20:00Z",
+            "updated_at": "2024-01-16T14:20:00Z"
+        }
+    },
+    {
+        "model": "main.cv",
+        "pk": 3,
+        "fields": {
+            "first_name": "Bob",
+            "last_name": "Williams",
+            "email": "bob.williams@example.com",
+            "phone": "+1555123789",
+            "location": "Austin, TX",
+            "title": "Full Stack Developer",
+            "bio": "Versatile full stack developer with experience in both frontend and backend technologies. Skilled in building scalable web applications and APIs.",
+            "experience": "Full Stack Developer at InnovateIT (2021-Present)\n• Developed microservices architecture using Node.js\n• Built RESTful APIs and database systems\n• Led team of 3 junior developers\n\nBackend Developer at DataFlow (2019-2021)\n• Designed and implemented database schemas\n• Created automated testing pipelines",
+            "education": "Master's degree in Software Engineering\nTexas State University, 2019\n\nBachelor's degree in Information Technology\nTexas State University, 2017",
+            "portfolio_url": "https://bobwilliams.tech",
+            "linkedin_url": "https://linkedin.com/in/bobwilliams",
+            "github_url": "https://github.com/bobwilliams",
+            "created_at": "2024-01-17T09:45:00Z",
+            "updated_at": "2024-01-17T09:45:00Z"
+        }
+    }
+]
