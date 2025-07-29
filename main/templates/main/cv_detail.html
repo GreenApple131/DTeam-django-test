@@ -229,6 +229,46 @@
                 <div id="message" class="mt-3"></div>
             </div>
         </div>
+
+        <!-- Translation Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-language me-2"></i>Translate CV
+                </h3>
+                <p class="mb-3">Select a language to translate this CV:</p>
+                <div class="input-group mb-3">
+                    <select id="languageSelect" class="form-select" aria-label="Select language">
+                        <option value="">Select language...</option>
+                        <option value="cornish">Cornish (Kernewek)</option>
+                        <option value="manx">Manx (Gaelg)</option>
+                        <option value="breton">Breton (Brezhoneg)</option>
+                        <option value="inuktitut">Inuktitut (ᐃᓄᒃᑎᑐᑦ)</option>
+                        <option value="kalaallisut">Kalaallisut (Greenlandic)</option>
+                        <option value="romani">Romani (Rromani ćhib)</option>
+                        <option value="occitan">Occitan (Occità)</option>
+                        <option value="ladino">Ladino (Judeo-Spanish)</option>
+                        <option value="northern_sami">Northern Sami (Davvisámegiella)</option>
+                        <option value="upper_sorbian">Upper Sorbian (Hornjoserbšćina)</option>
+                        <option value="kashubian">Kashubian (Kaszëbsczi jãzëk)</option>
+                        <option value="zazaki">Zazaki (Kirmanjki)</option>
+                        <option value="chuvash">Chuvash (Чӑваш чӗлхи)</option>
+                        <option value="livonian">Livonian (Līvõ kēļ)</option>
+                        <option value="tsakonian">Tsakonian (Τσακώνικα)</option>
+                        <option value="saramaccan">Saramaccan</option>
+                        <option value="bislama">Bislama</option>
+                    </select>
+                    <button class="btn btn-primary" type="button" id="translateBtn" onclick="translateCV()">
+                        <i class="fas fa-language me-1"></i>Translate CV
+                    </button>
+                </div>
+                <div id="translationMessage" class="mt-3"></div>
+                <div id="translationResult" style="display: none; margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f8f9fa;">
+                    <h4>Translation Result:</h4>
+                    <div id="translatedContent"></div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -320,8 +360,117 @@
         }
     }
 
+    let translationTaskId = null;
+
+    async function translateCV() {
+        const languageSelect = document.getElementById('languageSelect');
+        const translateBtn = document.getElementById('translateBtn');
+        const messageDiv = document.getElementById('translationMessage');
+        const resultDiv = document.getElementById('translationResult');
+
+        const language = languageSelect.value;
+
+        if (!language) {
+            showTranslationMessage('Please select a language', 'error');
+            return;
+        }
+
+        translateBtn.disabled = true;
+        translateBtn.textContent = 'Translating...';
+
+        try {
+            const response = await fetch(`/cv/{{ cv.id }}/translate/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ language: language })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                translationTaskId = data.task_id;
+                showTranslationMessage(`Translation started for ${data.target_language}. Please wait...`, 'success');
+                checkTranslationStatus();
+            } else {
+                showTranslationMessage(data.error || 'Translation failed', 'error');
+            }
+        } catch (error) {
+            showTranslationMessage('Network error. Please try again.', 'error');
+        } finally {
+            translateBtn.disabled = false;
+            translateBtn.textContent = 'Translate CV';
+        }
+    }
+
+    async function checkTranslationStatus() {
+        if (!translationTaskId) return;
+
+        try {
+            const response = await fetch(`/translation-result/${translationTaskId}/`);
+            const data = await response.json();
+
+            if (data.status === 'completed') {
+                if (data.result.success) {
+                    displayTranslationResult(data.result);
+                    showTranslationMessage('Translation completed successfully!', 'success');
+                } else {
+                    showTranslationMessage(`Translation failed: ${data.result.error}`, 'error');
+                }
+                translationTaskId = null;
+            } else if (data.status === 'failed') {
+                showTranslationMessage(`Translation failed: ${data.error}`, 'error');
+                translationTaskId = null;
+            } else {
+                // Still pending, check again in 2 seconds
+                setTimeout(checkTranslationStatus, 2000);
+            }
+        } catch (error) {
+            showTranslationMessage('Error checking translation status', 'error');
+            translationTaskId = null;
+        }
+    }
+
+    function displayTranslationResult(result) {
+        const resultDiv = document.getElementById('translationResult');
+        const contentDiv = document.getElementById('translatedContent');
+
+        const translated = result.translated_content;
+
+        let html = `
+            <p><strong>Language:</strong> ${result.target_language}</p>
+            <div style="margin-top: 15px;">
+                <h5>Professional Title:</h5>
+                <p>${translated.title}</p>
+
+                <h5>Professional Summary:</h5>
+                <p>${translated.bio}</p>
+
+                <h5>Experience:</h5>
+                <p style="white-space: pre-line;">${translated.experience}</p>
+
+                <h5>Education:</h5>
+                <p style="white-space: pre-line;">${translated.education}</p>
+
+                <h5>Skills:</h5>
+                <p>${translated.skills.join(', ')}</p>
+            </div>
+        `;
+
+        contentDiv.innerHTML = html;
+        resultDiv.style.display = 'block';
+    }
+
     function showMessage(text, type) {
         const messageDiv = document.getElementById('message');
+        messageDiv.textContent = text;
+        messageDiv.className = `message ${type}`;
+    }
+
+    function showTranslationMessage(text, type) {
+        const messageDiv = document.getElementById('translationMessage');
         messageDiv.textContent = text;
         messageDiv.className = `message ${type}`;
     }

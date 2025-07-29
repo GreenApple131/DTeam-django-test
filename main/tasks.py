@@ -9,6 +9,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 import io
 import logging
+from .services import TranslationService
 
 logger = logging.getLogger(__name__)
 
@@ -140,3 +141,25 @@ def generate_cv_pdf(cv):
     buffer.seek(0)
 
     return buffer
+
+
+@shared_task
+def translate_cv_content_task(cv_id, target_language):
+    """
+    Translate CV content asynchronously
+    """
+    try:
+        cv = CV.objects.get(id=cv_id)
+        translation_service = TranslationService()
+
+        result = translation_service.translate_cv_content(cv, target_language)
+
+        logger.info(f"Translation completed for CV ID: {cv_id} to {target_language}")
+        return result
+
+    except CV.DoesNotExist:
+        logger.error(f"CV with ID {cv_id} not found")
+        return {"success": False, "error": f"CV with ID {cv_id} not found"}
+    except Exception as e:
+        logger.error(f"Error translating CV: {str(e)}")
+        return {"success": False, "error": str(e)}

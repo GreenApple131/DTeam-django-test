@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import settings_view, detailed_settings_view, send_cv_email
+from .views import settings_view, detailed_settings_view, send_cv_email, translate_cv, get_translation_result
 
 app_name = "main"
 
@@ -11,4 +11,6 @@ urlpatterns = [
     path("settings/", settings_view, name="settings"),
     path("settings/detailed/", detailed_settings_view, name="detailed_settings"),
     path("cv/<int:cv_id>/send-email/", send_cv_email, name="send_cv_email"),
+    path("cv/<int:cv_id>/translate/", translate_cv, name="translate_cv"),
+    path("translation-result/<str:task_id>/", get_translation_result, name="translation_result"),
 ]

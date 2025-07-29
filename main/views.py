@@ -13,6 +13,8 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from main.models import CV
 from .tasks import send_cv_pdf_email
+from .services import TranslationService
+from .tasks import translate_cv_content_task
 
 
 class CVListView(ListView):
@@ -158,5 +160,65 @@ def send_cv_email(request, cv_id):
         return JsonResponse({"error": "CV not found"}, status=404)
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@require_POST
+def translate_cv(request, cv_id):
+    """
+    Trigger CV translation via OpenAI
+    """
+    try:
+        data = json.loads(request.body)
+        target_language = data.get("language")
+
+        if not target_language:
+            return JsonResponse({"error": "Language is required"}, status=400)
+
+        # Validate language
+        supported_languages = TranslationService.get_supported_languages()
+        if target_language not in supported_languages:
+            return JsonResponse({"error": "Unsupported language"}, status=400)
+
+        # Get CV to validate it exists
+        cv = CV.objects.get(id=cv_id)
+
+        # Trigger translation task
+        task = translate_cv_content_task.delay(cv_id, target_language)
+
+        return JsonResponse(
+            {
+                "message": "Translation is being processed",
+                "task_id": task.id,
+                "target_language": supported_languages[target_language],
+            }
+        )
+
+    except CV.DoesNotExist:
+        return JsonResponse({"error": "CV not found"}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+def get_translation_result(request, task_id):
+    """
+    Get translation task result
+    """
+    from celery.result import AsyncResult
+
+    try:
+        result = AsyncResult(task_id)
+
+        if result.ready():
+            if result.successful():
+                return JsonResponse({"status": "completed", "result": result.get()})
+            else:
+                return JsonResponse({"status": "failed", "error": str(result.info)})
+        else:
+            return JsonResponse({"status": "pending"})
+
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
